@@ -1,0 +1,46 @@
+<Project>
+    <PropertyGroup Label="ShoddyGameLibs">
+        <ShoddyGameLibsFileDir Condition="'$(ShoddyGameLibsFileDir)' == ''" Label="What to call the file.">$(MSBuildProjectDirectory)\ShoddyGameLibs</ShoddyGameLibsFileDir>
+
+        <ShoddyGameLibsBuildFrom Condition="'$(CI)' == 'true'">true</ShoddyGameLibsBuildFrom>
+    </PropertyGroup>
+
+    <!-- Setup PropertyGroups -->
+    <Target Name="CommonPropGroups">
+        <PropertyGroup>
+            <LIBS_PATH>$(MSBuildProjectDirectory)\libs</LIBS_PATH>
+        </PropertyGroup>
+    </Target>
+    
+    <!-- Include the paths of GameLib references on CI -->
+    <Target Name="LibPathsToDefault" Condition="'$(ShoddyGameLibsBuildFrom)' != 'true' or '$(BuildGameLibs)' == 'true'" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="CommonPropGroups">
+        <Message Importance="high" Text="Resolving @(ShoddyReference->Count()) ShoddyGameLib references from default paths."/>
+        <ItemGroup>
+            <Reference Include="%(ShoddyReference.Identity)"/>
+        </ItemGroup>
+    </Target>
+    
+    <!-- Include the paths of GameLib references on CI -->
+    <Target Name="LibPathsToInterim" Condition="'$(ShoddyGameLibsBuildFrom)' == 'true' and '$(BuildGameLibs)' != 'true'" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="CommonPropGroups">
+        <Message Importance="high" Text="Resolving @(ShoddyReference->Count()) ShoddyGameLib references from '$(LIBS_PATH)'"/>
+
+        <RemoveDir Directories="$(LIBS_PATH)"/>
+        <Unzip SourceFiles="$(ShoddyGameLibsFileDir)" DestinationFolder="$(LIBS_PATH)" OverwriteReadOnlyFiles="true" ContinueOnError="true"/>
+        <ItemGroup>
+            <Reference Include="$(LIBS_PATH)\$([System.IO.Path]::GetFileName('%(ShoddyReference.Identity)'))"/>
+        </ItemGroup>
+    </Target>
+
+    <!-- Strip and zip on local machines build success -->
+    <Target Name="StripPostBuild" AfterTargets="Build" Condition="'$(ShoddyGameLibsBuildFrom)' != 'true' and '$(BuildGameLibs)' == 'true'" DependsOnTargets="CommonPropGroups">
+        <Exec Command="dotnet tool list -g JetBrains.Refasmer.CliTool || dotnet tool install -g JetBrains.Refasmer.CliTool"/>
+        <MakeDir Directories="$(LIBS_PATH)"/>
+        <Message Importance="high" Text="Beginning Refasmer of @(ShoddyReference->Count()) references..."/>
+        <Exec Condition="'@(ShoddyReference)' != ''"
+              Command="refasmer --outputdir &quot;$(LIBS_PATH)&quot; --all --mock &quot;%(ShoddyReference.Identity)&quot;" />
+
+        <ZipDirectory DestinationFile="$(ShoddyGameLibsFileDir)" SourceDirectory="$(LIBS_PATH)" Overwrite="true" />
+        <RemoveDir Directories="$(LIBS_PATH)"/>
+    </Target>
+
+</Project>

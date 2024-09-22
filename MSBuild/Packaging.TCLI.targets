@@ -1,0 +1,147 @@
+<Project>
+    <PropertyGroup Label="RequiredProperties" Condition="'' != ''">
+        <PackageAuthor></PackageAuthor>
+    </PropertyGroup>
+
+    <PropertyGroup Label="OptionalProperties" Condition="'' != ''">
+        <PackageId>$(SolutionName)</PackageId>
+        <PackageIcon>./icon.png</PackageIcon>
+        <PackageRepoUrl></PackageRepoUrl>
+        <PackageDescription></PackageDescription>
+        <PackageReadmeFile>../README.md</PackageReadmeFile>
+        <PackageOutdir>./dist</PackageOutdir>
+        <PackageDestination>https://thunderstore.io</PackageDestination>
+    </PropertyGroup>
+
+    <ItemGroup Label="RequiredCollections" Condition="'' != ''">
+        <!-- May have multiple entries but at least one is required -->
+        <PackageCommunities Include="community-name"/>
+        <PackageCommunityCategories Include="community-name"><Value>Mod</Value></PackageCommunityCategories>
+    </ItemGroup>
+
+    <ItemGroup Label="OptionalCollections" Condition="'' != ''">
+        <!-- May have any number of entries -->
+        <PackageDeps Include="Some-Name"><Value>0.0.1</Value></PackageDeps>
+        <PackageBuildCopy Include="Path/To/File.ext"><Value>/BepInEx/plugins/$(PackageId)/</Value></PackageBuildCopy>
+    </ItemGroup>
+
+    <Target Name="PrepareForPackaging" BeforeTargets="PrepareForBuild">
+        <PropertyGroup>
+            <PackageId Condition="'$(PackageId)' == '$(AssemblyName)'">$(SolutionName)</PackageId>
+            <PackageIcon Condition="'$(PackageIcon)' == ''">./icon.png</PackageIcon>
+            <PackageReadmeFile Condition="'$(PackageReadmeFile)' == ''">../README.md</PackageReadmeFile>
+            <InputPackageIcon>$(PackageIcon)</InputPackageIcon>
+            <InputPackageReadmeFile>$(PackageReadmeFile)</InputPackageReadmeFile>
+            <PackageIcon Condition="'$(InputPackageIcon)' != ''">$([System.IO.Path]::GetFileName('$(InputPackageIcon)'))</PackageIcon>
+            <PackageReadmeFile Condition="'$(InputPackageReadmeFile)' != ''">$([System.IO.Path]::GetFileName('$(InputPackageReadmeFile)'))</PackageReadmeFile>
+            <PackageOutdir Condition="'$(PackageOutdir)' == ''">./dist</PackageOutdir>
+            <PackageVersion Condition="'$(PackageVersion)' == ''">$(BepInExPluginVersion)</PackageVersion>
+            <PackageVersion Condition="'$(PackageVersion)' == ''">$(PlainVersion)</PackageVersion>
+
+            <OutputTomlPath>$(IntermediateOutputPath)thunderstore.toml</OutputTomlPath>
+            <TomlOffset>../../../</TomlOffset>
+
+            <Authors>$(PackageAuthor)</Authors>
+            <RepositoryUrl>$(PackageRepoUrl)</RepositoryUrl>
+
+            <PackageOutputPath>$(PackageOutdir)/</PackageOutputPath>
+        </PropertyGroup>
+        <ReadLinesFromFile File="$(InputPackageReadmeFile)">
+            <Output
+                TaskParameter="Lines"
+                ItemName="PackageReadmeFileLines"/>
+        </ReadLinesFromFile>
+        <ItemGroup>
+            <PackageReadmeFileLinesReversed Include="@(PackageReadmeFileLines->Reverse())"/>
+            <PackageReadmeNoHashFileLines Include="@(PackageReadmeFileLinesReversed)"
+                Condition="'$([System.String]::Copy(&quot;%(PackageReadmeFileLinesReversed.Identity)&quot;).Replace(&quot;#&quot;, &quot;&quot;))' == '%(PackageReadmeFileLinesReversed.Identity)'"/>
+
+            <None Condition="Exists('$(InputPackageIcon)')" Include="$(InputPackageIcon)" Pack="true" PackagePath="" />
+            <None Condition="Exists('$(InputPackageReadmeFile)')" Include="$(InputPackageReadmeFile)" Pack="true" PackagePath="" />
+        </ItemGroup>
+        <PropertyGroup>
+            <PackageDescription Condition="'$(PackageDescription)' == 'Package Description'">%(PackageReadmeNoHashFileLines.Identity)</PackageDescription>
+
+            <NupkgOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg'))</NupkgOutputPath>
+            <TCLIOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackageOutputPath)$(PackageAuthor)-$(PackageId)-$(PackageVersion).zip'))</TCLIOutputPath>
+        </PropertyGroup>
+    </Target>
+
+    <Target Name="AfterBuildPackaging" AfterTargets="Build" BeforeTargets="GenerateNuspec">
+        <PropertyGroup>
+            <NupkgOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg'))</NupkgOutputPath>
+            <TCLIOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackageOutputPath)$(PackageAuthor)-$(PackageId)-$(PackageVersion).zip'))</TCLIOutputPath>
+        </PropertyGroup>
+        <Delete Condition="Exists($(NupkgOutputPath))" Files="$(NupkgOutputPath)"/>
+        <Delete Condition="Exists($(TCLIOutputPath))" Files="$(TCLIOutputPath)"/>
+        <ItemGroup>
+            <ErrorMissing Condition="'$(PackageAuthor)' == ''" Include="PackageAuthor"/>
+            <ErrorMissing Condition="'@(PackageCommunities->Count())' == 0" Include="PackageCommunities"/>
+            <ErrorMissing Condition="'@(PackageCommunityCategories->Count())' == 0" Include="PackageCommunityCategories"/>
+
+            <TCLI_QuotedCommunities Include="&quot;%(PackageCommunities.Identity)&quot;"/>
+            <TCLI_QuotedCategories Include="&quot;%(PackageCommunityCategories.Value)&quot;"/>
+            
+            <TCLIConfig Include="schemaVersion"><Value>"0.0.1"</Value></TCLIConfig>
+
+            <TCLIPackage Condition="'$(PackageAuthor)' != ''" Include="namespace"><Value>"$(PackageAuthor)"</Value></TCLIPackage>
+            <TCLIPackage Condition="'$(PackageId)' != ''" Include="name"><Value>"$(PackageId)"</Value></TCLIPackage>
+            <TCLIPackage Condition="'$(PackageVersion)' != ''" Include="versionNumber"><Value >"$(PackageVersion)"</Value></TCLIPackage>
+            <TCLIPackage Condition="'$(PackageDescription)' != ''" Include="description"><Value >"$(PackageDescription)"</Value></TCLIPackage>
+            <TCLIPackage Condition="'$(PackageRepoUrl)' != ''" Include="websiteUrl"><Value >"$(PackageRepoUrl)"</Value></TCLIPackage>
+            <TCLIPackage Condition="'$(PackageContainsNsfwContent)' != ''" Include="containsNsfwContent"><Value >$(PackageContainsNsfwContent)</Value></TCLIPackage>
+            <TCLIPackage Condition="'$(PackageContainsNsfwContent)' == ''" Include="containsNsfwContent"><Value >false</Value></TCLIPackage>
+
+            <TCLIDependencies Include="%(PackageDeps.Identity)"><Value>&quot;%(PackageDeps.Value)&quot;</Value></TCLIDependencies>
+
+            <TCLIBuild Condition="'$(InputPackageIcon)' != ''" Include="icon"><Value>"$(TomlOffset)$([System.String]::Copy('$(InputPackageIcon)').Replace('\','/'))"</Value></TCLIBuild>
+            <TCLIBuild Condition="'$(InputPackageReadmeFile)' != ''" Include="readme"><Value>"$(TomlOffset)$([System.String]::Copy('$(InputPackageReadmeFile)').Replace('\','/'))"</Value></TCLIBuild>
+            <TCLIBuild Condition="'$(PackageOutdir)' != ''" Include="outdir"><Value >"$(TomlOffset)$([System.String]::Copy('$(PackageOutdir)').Replace(' \','/'))"</Value></TCLIBuild>
+            <TCLIBuild Condition="'$(PackageOutdir)' == ''" Include="outdir"><Value >"$(TomlOffset)dist"</Value></TCLIBuild>
+
+            <PackageBuildCopy Include="$(OutputPath)\$(AssemblyName).dll"><Value>/BepInEx/plugins/$(PackageId)/</Value></PackageBuildCopy>
+            <TCLIBuildCopy Condition="'@(PackageBuildCopy->Count())' > 0" Include="$(TomlOffset)$([System.String]::Copy('%(PackageBuildCopy.Identity)').Replace('\','/'))"><Value>$([System.String]::Copy('%(PackageBuildCopy.Value)').Replace('\','/'))</Value></TCLIBuildCopy>
+
+            <TCLIPublish Condition="'$(PackageDestination)' != ''" Include="repository"><Value>"$(PackageDestination)"</Value></TCLIPublish>
+            <TCLIPublish Condition="'$(PackageDestination)' == ''" Include="repository"><Value>"https://thunderstore.io"</Value></TCLIPublish>
+            <TCLIPublish Condition="'@(PackageCommunities->Count())' > 0" Include="communities"><Value>[ @(TCLI_QuotedCommunities, ', ') ]</Value></TCLIPublish>
+
+            <TCLIPublishCategories Include="%(PackageCommunityCategories.Identity)"><Value>[ @(TCLI_QuotedCategories, ', ') ]</Value></TCLIPublishCategories>
+            
+            <TomlLines Include="[config]"/>
+            <TomlLines Include="%(TCLIConfig.Identity) = %(TCLIConfig.Value)"/>
+            <TomlLines Include="[package]"/>
+            <TomlLines Include="%(TCLIPackage.Identity) = %(TCLIPackage.Value)"/>
+            <TomlLines Condition="'@(TCLIDependencies->Count())' > 0" Include="[package.dependencies]"/>
+            <TomlLines Condition="'@(TCLIDependencies->Count())' > 0" Include="%(TCLIDependencies.Identity) = %(TCLIDependencies.Value)"/>
+            <TomlLines Include="[build]"/>
+            <TomlLines Include="%(TCLIBuild.Identity) = %(TCLIBuild.Value)"/>
+            <TomlLines Condition="'@(TCLIBuildCopy->Count())' > 0" Include="[[build.copy]]%0Asource = &quot;%(TCLIBuildCopy.Identity)&quot;%0Atarget = &quot;%(TCLIBuildCopy.Value)&quot;"/>
+            <TomlLines Include="[publish]"/>
+            <TomlLines Include="%(TCLIPublish.Identity) = %(TCLIPublish.Value)"/>
+            <TomlLines Condition="'@(TCLIPublishCategories->Count())' > 0" Include="[publish.categories]"/>
+            <TomlLines Condition="'@(TCLIPublishCategories->Count())' > 0" Include="%(TCLIPublishCategories.Identity) = %(TCLIPublishCategories.Value)"/>
+        </ItemGroup>
+
+        <WriteLinesToFile Condition="'@(ErrorMissing->Count())' == 0" File="$(OutputTomlPath)" Lines="@(TomlLines)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+        
+        <Exec Condition="'@(ErrorMissing->Count())' == 0" 
+            Command="dotnet tool list -g tcli || dotnet tool install -g tcli"/>
+        <Exec Condition="'@(ErrorMissing->Count())' == 0" 
+            Command="tcli build --config-path &quot;$(OutputTomlPath)&quot;"/>
+        <Message Condition="'@(ErrorMissing->Count())' > 0" 
+            Importance="high" Text="Missing MSBuild Properties [ @(ErrorMissing, ', ') ]. Skipping TCLI Build!"/>
+    </Target>
+
+    <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
+        <ItemGroup>
+            <Packages Condition="Exists($(NupkgOutputPath))" Include="$(NupkgOutputPath)"/>
+            <Packages Condition="Exists($(TCLIOutputPath))" Include="$(TCLIOutputPath)"/>
+        </ItemGroup>
+        <PropertyGroup>
+            <FinalOutput Condition="'@(Packages->Count())' == '0'">-1</FinalOutput>
+            <FinalOutput Condition="'@(Packages->Count())' > '0'">@(Packages)</FinalOutput>
+        </PropertyGroup>
+        <Message Importance="high" Text="$(FinalOutput)"/>
+    </Target>
+</Project>
