@@ -132,6 +132,6 @@
     </Target>
 
     <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
-        <Message Importance="high" Text="$(PackagesOutputPath)"/>
+        <Message Importance="high" Text="$(NupkgOutputPath);$(TCLIOutputPath)"/>
     </Target>
 </Project>
