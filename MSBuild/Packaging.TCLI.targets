@@ -61,14 +61,12 @@
         </ItemGroup>
         <PropertyGroup>
             <PackageDescription Condition="'$(PackageDescription)' == 'Package Description'">%(PackageReadmeNoHashFileLines.Identity)</PackageDescription>
-
-            <NupkgOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg'))</NupkgOutputPath>
-            <TCLIOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackageOutputPath)$(PackageAuthor)-$(PackageId)-$(PackageVersion).zip'))</TCLIOutputPath>
         </PropertyGroup>
     </Target>
 
     <Target Name="AfterBuildPackaging" AfterTargets="Build" BeforeTargets="GenerateNuspec">
         <PropertyGroup>
+            <PackagesOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackageOutputPath)'))</PackagesOutputPath>
             <NupkgOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg'))</NupkgOutputPath>
             <TCLIOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackageOutputPath)$(PackageAuthor)-$(PackageId)-$(PackageVersion).zip'))</TCLIOutputPath>
         </PropertyGroup>
@@ -134,14 +132,6 @@
     </Target>
 
     <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
-        <ItemGroup>
-            <Packages Condition="Exists($(NupkgOutputPath))" Include="NUPKG=$(NupkgOutputPath)"/>
-            <Packages Condition="Exists($(TCLIOutputPath))" Include="TSPKG=$(TCLIOutputPath)"/>
-        </ItemGroup>
-        <PropertyGroup>
-            <FinalOutput Condition="'@(Packages->Count())' == '0'">-1</FinalOutput>
-            <FinalOutput Condition="'@(Packages->Count())' > '0'">@(Packages)</FinalOutput>
-        </PropertyGroup>
-        <Message Importance="high" Text="$(FinalOutput)"/>
+        <Message Importance="high" Text="$(PackagesOutputPath)"/>
     </Target>
 </Project>
