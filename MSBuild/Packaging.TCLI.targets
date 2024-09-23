@@ -135,8 +135,8 @@
 
     <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
         <ItemGroup>
-            <Packages Condition="Exists($(NupkgOutputPath))" Include="$(NupkgOutputPath)"/>
-            <Packages Condition="Exists($(TCLIOutputPath))" Include="$(TCLIOutputPath)"/>
+            <Packages Condition="Exists($(NupkgOutputPath))" Include="NUPKG=$(NupkgOutputPath)"/>
+            <Packages Condition="Exists($(TCLIOutputPath))" Include="TSPKG=$(TCLIOutputPath)"/>
         </ItemGroup>
         <PropertyGroup>
             <FinalOutput Condition="'@(Packages->Count())' == '0'">-1</FinalOutput>
