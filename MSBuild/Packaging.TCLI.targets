@@ -132,6 +132,6 @@
     </Target>
 
     <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
-        <Message Importance="high" Text="$(NupkgOutputPath);$(TCLIOutputPath)"/>
+        <Message Importance="high" Text="$(NupkgOutputPath);$(TCLIOutputPath);$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(OutputTomlPath)'))"/>
     </Target>
 </Project>
