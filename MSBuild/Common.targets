@@ -6,8 +6,7 @@
         <!-- Set NuGet Sources -->
         <RestoreAdditionalProjectSources>
             https://api.nuget.org/v3/index.json;
-            https://nuget.bepinex.dev/v3/index.json;
-            https://nuget.pkg.github.com/DayDreamMods/index.json
+            https://nuget.bepinex.dev/v3/index.json
         </RestoreAdditionalProjectSources>
 
         <!-- Set MinVer Tag & Prerelease Properties -->
