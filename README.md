@@ -1,5 +1,5 @@
-# .NET Common Files
-A location for files common to .NET projects.
+# 
+
 
 ### Support
 Please reach out on Discord: [Daydreaming](https://discord.gg/Mherqbcmep), or create an issue on the repository here!
