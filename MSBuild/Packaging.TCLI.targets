@@ -116,7 +116,7 @@
             <TomlLines Condition="'@(TCLIBuildCopy->Count())' > 0" Include="[[build.copy]]%0Asource = &quot;%(TCLIBuildCopy.Identity)&quot;%0Atarget = &quot;%(TCLIBuildCopy.Value)&quot;"/>
             <TomlLines Include="[publish]"/>
             <TomlLines Include="%(TCLIPublish.Identity) = %(TCLIPublish.Value)"/>
-            <TomlLines Condition="'@(TCLIPublishCategories->Count())' > 0" Include="[publish.categories]"/>
+            <TomlLines Include="[publish.categories]"/>
             <TomlLines Condition="'@(TCLIPublishCategories->Count())' > 0" Include="%(TCLIPublishCategories.Identity) = %(TCLIPublishCategories.Value)"/>
         </ItemGroup>
 
