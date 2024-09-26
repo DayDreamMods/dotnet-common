@@ -75,7 +75,6 @@
         <ItemGroup>
             <ErrorMissing Condition="'$(PackageAuthor)' == ''" Include="PackageAuthor"/>
             <ErrorMissing Condition="'@(PackageCommunities->Count())' == 0" Include="PackageCommunities"/>
-            <ErrorMissing Condition="'@(PackageCommunityCategories->Count())' == 0" Include="PackageCommunityCategories"/>
 
             <TCLI_QuotedCommunities Include="&quot;%(PackageCommunities.Identity)&quot;"/>
             <TCLI_QuotedCategories Include="&quot;%(PackageCommunityCategories.Value)&quot;"/>
