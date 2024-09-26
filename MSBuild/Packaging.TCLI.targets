@@ -109,8 +109,7 @@
             <TomlLines Include="%(TCLIConfig.Identity) = %(TCLIConfig.Value)"/>
             <TomlLines Include="[package]"/>
             <TomlLines Include="%(TCLIPackage.Identity) = %(TCLIPackage.Value)"/>
-            <TomlLines Condition="'@(TCLIDependencies->Count())' == 0" Include="dependencies = []"/>
-            <TomlLines Condition="'@(TCLIDependencies->Count())' > 0" Include="[package.dependencies]"/>
+            <TomlLines Include="[package.dependencies]"/>
             <TomlLines Condition="'@(TCLIDependencies->Count())' > 0" Include="%(TCLIDependencies.Identity) = %(TCLIDependencies.Value)"/>
             <TomlLines Include="[build]"/>
             <TomlLines Include="%(TCLIBuild.Identity) = %(TCLIBuild.Value)"/>
