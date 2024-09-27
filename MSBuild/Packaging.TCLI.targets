@@ -90,7 +90,7 @@
     <Target Name="AfterBuildPreNupkgCreation" AfterTargets="Build" BeforeTargets="GenerateNuspec">
         <ItemGroup>
             <TCLI_QuotedCommunities Include="&quot;%(PackagingCommunities.Identity)&quot;"/>
-            <TCLI_QuotedCategories Include="&quot;%(PackagingCategories.Identity)&quot;"/>
+            <TCLI_QuotedCategories Condition="'@(PackagingCategories->Count())' > 0" Include="&quot;%(PackagingCategories.Identity)&quot;"/>
         </ItemGroup>
         <PropertyGroup>
             <TomlOffset>../../../</TomlOffset>
