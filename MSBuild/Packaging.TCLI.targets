@@ -99,8 +99,8 @@
         <Delete Condition="Exists($(TCLIOutputPath))" Files="$(TCLIOutputPath)"/>
 
         <ItemGroup Label="Build TOML">
-            <TCLI_QuotedCommunities Include="&quot;%(PackageCommunities.Identity)&quot;"/>
-            <TCLI_QuotedCategories Include="&quot;%(PackageCommunityCategories.Identity)&quot;"/>
+            <TCLI_QuotedCommunities Include="&quot;%(PackagingCommunities.Identity)&quot;"/>
+            <TCLI_QuotedCategories Include="&quot;%(PackagingCategories.Identity)&quot;"/>
             <PackagingBuildCopies Include="$(PackagingLICENSE)"><MapTo>/</MapTo></PackagingBuildCopies>
 
             <TomlLines Include="[config]"/>
