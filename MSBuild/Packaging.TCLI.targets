@@ -88,19 +88,23 @@
         </PropertyGroup>
     </Target>
     <Target Name="AfterBuildPreNupkgCreation" AfterTargets="Build" BeforeTargets="GenerateNuspec">
+        <ItemGroup>
+            <TCLI_QuotedCommunities Include="&quot;%(PackagingCommunities.Identity)&quot;"/>
+            <TCLI_QuotedCategories Include="&quot;%(PackagingCategories.Identity)&quot;"/>
+        </ItemGroup>
         <PropertyGroup>
             <TomlOffset>../../../</TomlOffset>
 
             <OutputTomlPath>$(IntermediateOutputPath)thunderstore.toml</OutputTomlPath>
             <NupkgOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/NUPKG/$(PackageId).$(PackageVersion).nupkg'))</NupkgOutputPath>
             <TCLIOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/TSPKG/$(ThunderstoreNamespace)-$(ThunderstoreName)-$(PackageVersion).zip'))</TCLIOutputPath>
+            <PackagingQuotedCommunities>[ @(TCLI_QuotedCommunities, ', ') ]</PackagingQuotedCommunities>
+            <PackagingQuotedCategories>[ @(TCLI_QuotedCategories, ', ') ]</PackagingQuotedCategories>
         </PropertyGroup>
         <Delete Condition="Exists($(NupkgOutputPath))" Files="$(NupkgOutputPath)"/>
         <Delete Condition="Exists($(TCLIOutputPath))" Files="$(TCLIOutputPath)"/>
 
         <ItemGroup Label="Build TOML">
-            <TCLI_QuotedCommunities Include="&quot;%(PackagingCommunities.Identity)&quot;"/>
-            <TCLI_QuotedCategories Include="&quot;%(PackagingCategories.Identity)&quot;"/>
             <PackagingBuildCopies Include="$(PackagingLICENSE)"><MapTo>/</MapTo></PackagingBuildCopies>
 
             <TomlLines Include="[config]"/>
@@ -126,8 +130,8 @@
             
             <TomlLines Include="[publish]"/>
             <TomlLines Include="repository = &quot;$(ThunderstoreDestination)&quot;"/>
-            <TomlLines Include="communities = [ $(@(TCLI_QuotedCommunities, ', ')) ]"/>
-            <TomlLines Include="categories = [ $(@(TCLI_QuotedCategories, ', ')) ]"/>
+            <TomlLines Include="communities = $(PackagingQuotedCommunities)"/>
+            <TomlLines Include="categories = $(PackagingQuotedCategories)"/>
         </ItemGroup>
 
         <WriteLinesToFile File="$(OutputTomlPath)" Lines="@(TomlLines)" Overwrite="true" WriteOnlyWhenDifferent="true" />
