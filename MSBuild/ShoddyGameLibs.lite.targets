@@ -27,7 +27,7 @@
 
         <RemoveDir Directories="$(LIBS_PATH)"/>
         <Unzip SourceFiles="$(ShoddyGameLibsFileDir)" DestinationFolder="$(LIBS_PATH)" OverwriteReadOnlyFiles="true" ContinueOnError="true"/>
-        <ItemGroup>
+        <ItemGroup Condition="'@(ShoddyReference->Count())' > 0">
             <Reference Include="$(LIBS_PATH)\$([System.IO.Path]::GetFileName('%(ShoddyReference.Identity)'))"/>
         </ItemGroup>
     </Target>

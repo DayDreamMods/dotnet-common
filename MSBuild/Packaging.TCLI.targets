@@ -96,7 +96,7 @@
             <OutputTomlPath>$(IntermediateOutputPath)thunderstore.toml</OutputTomlPath>
             <PackagesOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)'))</PackagesOutputPath>
             <NupkgOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/$(PackageId).$(PackageVersion).nupkg'))</NupkgOutputPath>
-            <TCLIOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/$(PackageAuthor)-$(PackageId)-$(PackageVersion).zip'))</TCLIOutputPath>
+            <TCLIOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/$(ThunderstoreNamespace)-$(ThunderstoreName)-$(PackageVersion).zip'))</TCLIOutputPath>
         </PropertyGroup>
         <Delete Condition="Exists($(NupkgOutputPath))" Files="$(NupkgOutputPath)"/>
         <Delete Condition="Exists($(TCLIOutputPath))" Files="$(TCLIOutputPath)"/>
