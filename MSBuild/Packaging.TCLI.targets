@@ -41,8 +41,6 @@
             <ThunderstoreDestination Condition="'$(ThunderstoreDestination)' == ''">https://thunderstore.dev</ThunderstoreDestination>
         </PropertyGroup>
 
-        <Message Importance="high" Text="$(GH_REPO_COMMIT_HASH)"/>
-
         <ReadLinesFromFile Condition="Exists($(PackagingREADME))" File="$(PackagingREADME)">
             <Output TaskParameter="Lines" ItemName="PackagingREADMEFileLines"/>
         </ReadLinesFromFile>
@@ -78,7 +76,7 @@
             <Authors>$(PackagingAuthor)</Authors>
             <PackageId>$(ThunderstoreNamespace).$(ThunderstoreName)</PackageId>
             <PackageVersion>$(PackagingVersion)</PackageVersion>
-            <PackageOutputPath>$(PackagingOutputPath)</PackageOutputPath>
+            <PackageOutputPath>$(PackagingOutputPath)/NUPKG</PackageOutputPath>
             <PackageDescription>$(PackagingDescription)</PackageDescription>
             <PackageProjectUrl>$(PackagingProjectURL)</PackageProjectUrl>
             <RepositoryUrl>$(PackagingRepositoryURL)</RepositoryUrl>
@@ -94,9 +92,8 @@
             <TomlOffset>../../../</TomlOffset>
 
             <OutputTomlPath>$(IntermediateOutputPath)thunderstore.toml</OutputTomlPath>
-            <PackagesOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)'))</PackagesOutputPath>
-            <NupkgOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/$(PackageId).$(PackageVersion).nupkg'))</NupkgOutputPath>
-            <TCLIOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/$(ThunderstoreNamespace)-$(ThunderstoreName)-$(PackageVersion).zip'))</TCLIOutputPath>
+            <NupkgOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/NUPKG/$(PackageId).$(PackageVersion).nupkg'))</NupkgOutputPath>
+            <TCLIOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/TSPKG/$(ThunderstoreNamespace)-$(ThunderstoreName)-$(PackageVersion).zip'))</TCLIOutputPath>
         </PropertyGroup>
         <Delete Condition="Exists($(NupkgOutputPath))" Files="$(NupkgOutputPath)"/>
         <Delete Condition="Exists($(TCLIOutputPath))" Files="$(TCLIOutputPath)"/>
@@ -123,7 +120,7 @@
             <TomlLines Include="[build]"/>
             <TomlLines Include="icon = &quot;$(TomlOffset)$([System.String]::Copy('$(PackagingIcon)').Replace('\','/'))&quot;"/>
             <TomlLines Include="readme = &quot;$(TomlOffset)$([System.String]::Copy('$(PackagingREADME)').Replace('\','/'))&quot;"/>
-            <TomlLines Include="outdir = &quot;$(TomlOffset)$([System.String]::Copy('$(PackagingOutputPath)').Replace('\','/'))&quot;"/>
+            <TomlLines Include="outdir = &quot;$(TomlOffset)$([System.String]::Copy('$(PackagingOutputPath)/TSPKG').Replace('\','/'))&quot;"/>
 
             <TomlLines Include="[[build.copy]]%0Asource = &quot;$(TomlOffset)$([System.String]::Copy('%(PackagingBuildCopies.Identity)').Replace('\','/'))&quot;%0Atarget = &quot;%(PackagingBuildCopies.MapTo)&quot;"/>
             
@@ -137,9 +134,11 @@
         
         <Exec Command="dotnet tool list -g tcli || dotnet tool install -g tcli"/>
         <Exec Command="tcli build --config-path &quot;$(OutputTomlPath)&quot;"/>
+
+        <Copy SourceFiles="$(OutputTomlPath)" DestinationFolder="$(PackagingOutputPath)/TSPKG"/>
     </Target>
 
     <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
-        <Message Importance="high" Text="$(NupkgOutputPath);$(TCLIOutputPath);$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(OutputTomlPath)'))"/>
+        <Message Importance="high" Text="$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)'))"/>
     </Target>
 </Project>
