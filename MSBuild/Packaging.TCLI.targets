@@ -144,6 +144,9 @@
 
     <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
         <PropertyGroup>
+            <PackagingReturnsNUPKG Condition="'$(PackagingReturnsNUPKG)' == ''">false</PackagingReturnsNUPKG>
+            <PackagingReturnsTSPKG Condition="'$(PackagingReturnsTSPKG)' == ''">false</PackagingReturnsTSPKG>
+            <PackagingReturnsNMPKG Condition="'$(PackagingReturnsNMPKG)' == ''">false</PackagingReturnsNMPKG>
             <JsonOutput>{"OutputDirectory": "$(PackagingOutputPath)", "PublishNUPKG": $(PackagingReturnsNUPKG), "PublishTSPKG": $(PackagingReturnsTSPKG), "PublishNMPKG": $(PackagingReturnsNMPKG)}</JsonOutput>
         </PropertyGroup>
         <Message Importance="high" Text="$(JsonOutput)"/>
