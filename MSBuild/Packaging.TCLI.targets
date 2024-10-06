@@ -144,7 +144,7 @@
 
     <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
         <PropertyGroup>
-            <JsonOutput>{"OutputDirectory": "$(PackagingOutputPath)", "PublishNUPKG": $(PackagingReturnsNUPKG), "PublishTSPKG": $(PackagingReturnsTSPKG), "PublishNMPKG": $($(PackagingReturnsNMPKG))}</JsonOutput>
+            <JsonOutput>{"OutputDirectory": "$(PackagingOutputPath)", "PublishNUPKG": $(PackagingReturnsNUPKG), "PublishTSPKG": $(PackagingReturnsTSPKG), "PublishNMPKG": $(PackagingReturnsNMPKG)}</JsonOutput>
         </PropertyGroup>
         <Message Importance="high" Text="$(JsonOutput)"/>
     </Target>
