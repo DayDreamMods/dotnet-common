@@ -143,6 +143,14 @@
     </Target>
 
     <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
-        <Message Importance="high" Text="$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)'))"/>
+        <PropertyGroup>
+            <OutputNupkgValue Condition="'$(PackagingReturnsNUPKG)' == 'true'">NUPKG=$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/NUPKG'))</OutputNupkgValue>
+            <OutputTspkgValue Condition="'$(PackagingReturnsTSPKG)' == 'true'">TSPKG=$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/TSPKG'))</OutputTspkgValue>
+            <FinalOutputTextValue Condition="'$(OutputNupkgValue)' == ''">$(OutputTspkgValue)</FinalOutputTextValue>
+            <FinalOutputTextValue Condition="'$(OutputTspkgValue)' == ''">$(OutputNupkgValue)</FinalOutputTextValue>
+            <FinalOutputTextValue Condition="'$(OutputNupkgValue)' != '' and '$(OutputTspkgValue)' != ''">$(OutputNupkgValue);$(OutputTspkgValue)</FinalOutputTextValue>
+        </PropertyGroup>
+        <Message Condition="'$(FinalOutputTextValue)' != ''" Importance="high" 
+            Text="$(FinalOutputTextValue)"/>
     </Target>
 </Project>
