@@ -1,4 +1,4 @@
-<Project InitialTargets="IncludeMinVer">
+<Project InitialTargets="IncludeMinVer;SetupMinVer">
     <PropertyGroup>
         <AssemblyName>wwwDayDream.$(MSBuildProjectName)</AssemblyName>
         <Product>$(MSBuildProjectName)</Product>
@@ -27,7 +27,7 @@
             <PackageReference Include="MinVer" Version="5.0.0" PrivateAssets="all"/>
         </ItemGroup>
     </Target>
-    <Target Name="SetupMinVer" AfterTargets="MinVer">
+    <Target Name="SetupMinVer" DependsOnTargets="MinVer">
         <PropertyGroup>
             <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch).0</AssemblyVersion>
             <PlainVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PlainVersion>
