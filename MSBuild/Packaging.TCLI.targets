@@ -144,13 +144,8 @@
 
     <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
         <PropertyGroup>
-            <OutputNupkgValue Condition="'$(PackagingReturnsNUPKG)' == 'true'">NUPKG=$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/NUPKG'))</OutputNupkgValue>
-            <OutputTspkgValue Condition="'$(PackagingReturnsTSPKG)' == 'true'">TSPKG=$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/TSPKG'))</OutputTspkgValue>
-            <FinalOutputTextValue Condition="'$(OutputNupkgValue)' == ''">$(OutputTspkgValue)</FinalOutputTextValue>
-            <FinalOutputTextValue Condition="'$(OutputTspkgValue)' == ''">$(OutputNupkgValue)</FinalOutputTextValue>
-            <FinalOutputTextValue Condition="'$(OutputNupkgValue)' != '' and '$(OutputTspkgValue)' != ''">$(OutputNupkgValue);$(OutputTspkgValue)</FinalOutputTextValue>
+            <JsonOutput>{"OutputDirectory": "$(PackagingOutputPath)", "PublishNUPKG": $(PackagingReturnsNUPKG), "PublishTSPKG": $(PackagingReturnsTSPKG), "PublishNMPKG": $($(PackagingReturnsNMPKG))}</JsonOutput>
         </PropertyGroup>
-        <Message Condition="'$(FinalOutputTextValue)' != ''" Importance="high" 
-            Text="$(FinalOutputTextValue)"/>
+        <Message Importance="high" Text="$(JsonOutput)"/>
     </Target>
 </Project>
