@@ -1,4 +1,4 @@
-<Project InitialTargets="IncludeMinVer;SetupMinVer">
+<Project>
     <PropertyGroup>
         <AssemblyName>wwwDayDream.$(MSBuildProjectName)</AssemblyName>
         <Product>$(MSBuildProjectName)</Product>
@@ -18,16 +18,13 @@
         <DebugType>embedded</DebugType>
         <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)'))=./</PathMap>
     </PropertyGroup>
+    
     <ItemGroup>
         <PackageReference Include="UnityEngine.Modules" Version="$(CommonUnityVersion)" PrivateAssets="all" IncludeAssets="compile"/>
+        <PackageReference Include="MinVer" Version="5.0.0" PrivateAssets="all"/>
     </ItemGroup>
-
-    <Target Name="IncludeMinVer">
-        <ItemGroup>
-            <PackageReference Include="MinVer" Version="5.0.0" PrivateAssets="all"/>
-        </ItemGroup>
-    </Target>
-    <Target Name="SetupMinVer" DependsOnTargets="MinVer">
+    
+    <Target Name="SetupMinVer" BeforeTargets="Build" DependsOnTargets="MinVer">
         <PropertyGroup>
             <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch).0</AssemblyVersion>
             <PlainVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PlainVersion>
