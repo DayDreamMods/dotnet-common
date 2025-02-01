@@ -88,4 +88,6 @@
     <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
         <Message Importance="high" Text="$(NupkgOutputPath)"/>
     </Target>
+    
+    <Import Project="./Common.targets"/>
 </Project>
