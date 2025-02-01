@@ -1,0 +1,91 @@
+<Project>
+    <!-- 
+    <PropertyGroup>
+        <PackagingAuthor>wwwDayDream</PackagingAuthor>
+
+        <PackagingIcon>./icon.png</PackagingIcon>
+        <PackagingREADME>../README.md</PackagingREADME>
+        <PackagingLICENSE>../LICENSE</PackagingLICENSE>
+        <PackagingOutputPath>./dist</PackagingOutputPath>
+        <PackagingDescription>%(PackagingREADME)[0]</PackagingDescription>
+        <PackagingProjectURL>$(GH_REPO_URL)</PackagingProjectURL>
+        <PackagingRepositoryURL>$(GH_REPO_GIT_URL)</PackagingRepositoryURL>
+        <PackagingRepositoryBranch>$(GH_REPO_DEFAULT_BRANCH)</PackagingRepositoryBranch>
+        <PackagingContainsNSFW>false</PackagingContainsNSFW>
+        <PackagingVersion>$(PlainVersion)</PackagingVersion>
+    </PropertyGroup>
+    -->
+    <Target Name="PackagingDataSetup" BeforeTargets="GenerateNuspec;Build">
+        <PropertyGroup Label="Setup Optional Properties">
+            <PackagingAuthor Condition="'$(PackagingAuthor)' == ''">wwwDayDream</PackagingAuthor>
+            <PackagingIcon Condition="'$(PackagingIcon)' == ''">./icon.png</PackagingIcon>
+            <PackagingREADME Condition="'$(PackagingREADME)' == ''">../README.md</PackagingREADME>
+            <PackagingLICENSE Condition="'$(PackagingLICENSE)' == ''">../LICENSE</PackagingLICENSE>
+            <PackagingOutputPath Condition="'$(PackagingOutputPath)' == ''">./dist</PackagingOutputPath>
+            <PackagingProjectURL Condition="'$(PackagingProjectURL)' == ''">$(GH_REPO_URL)</PackagingProjectURL>
+            <PackagingRepositoryURL Condition="'$(PackagingRepositoryURL)' == ''">$(GH_REPO_GIT_URL)</PackagingRepositoryURL>
+            <PackagingRepositoryBranch Condition="'$(PackagingRepositoryBranch)' == ''">$(GH_REPO_DEFAULT_BRANCH)</PackagingRepositoryBranch>
+            <PackagingContainsNSFW Condition="'$(PackagingContainsNSFW)' == ''">false</PackagingContainsNSFW>
+            <PackagingVersion Condition="'$(PackagingVersion)' == ''">$(PlainVersion)</PackagingVersion>
+        </PropertyGroup>
+
+        <ReadLinesFromFile Condition="Exists($(PackagingREADME))" File="$(PackagingREADME)">
+            <Output TaskParameter="Lines" ItemName="PackagingREADMEFileLines"/>
+        </ReadLinesFromFile>
+
+        <ItemGroup Condition="'@(PackagingREADMEFileLines->Count())' > 0">
+            <PackagingREADMEFileLinesReversed Include="@(PackagingREADMEFileLines->Reverse())"/>
+            <PackagingREADMENoHashFileLines Include="@(PackagingREADMEFileLinesReversed)"
+                                            Condition="'$([System.String]::Copy(&quot;%(PackagingREADMEFileLinesReversed.Identity)&quot;).Replace(&quot;#&quot;, &quot;&quot;))' == '%(PackagingREADMEFileLinesReversed.Identity)'"/>
+        </ItemGroup>
+
+        <PropertyGroup Label="Late Defaults">
+            <PackagingDescription Condition="'$(PackagingDescription)' == ''">%(PackagingREADMENoHashFileLines.Identity)</PackagingDescription>
+        </PropertyGroup>
+
+        <ItemGroup Label="Missing Requirements Check">
+            <ErrorMissingParams Condition="!Exists($(PackagingIcon))" Include="PackagingIcon Not Found "/>
+            <ErrorMissingParams Condition="!Exists($(PackagingREADME))" Include="PackagingREADME Not Found "/>
+            <ErrorMissingParams Condition="!Exists($(PackagingLICENSE))" Include="PackagingLICENSE Not Found "/>
+        </ItemGroup>
+
+        <Error Condition="'@(ErrorMissingParams->Count())' > 0" Text="@(ErrorMissingParams, ', ')! Skipping TCLI Build!"/>
+
+        <ItemGroup Label="Final Includes">
+            <None Include="$(PackagingIcon)" Pack="true" PackagePath="" />
+            <None Include="$(PackagingREADME)" Pack="true" PackagePath="" />
+            <None Include="$(PackagingLICENSE)" Pack="true" PackagePath="" />
+        </ItemGroup>
+
+        <PropertyGroup Label="Update External MSBuild Properties">
+            <!-- Nuget.Build.Tasks.Pack.targets :: PackTask -->
+            <Title>$(ThunderstoreName)</Title>
+            <Authors>$(PackagingAuthor)</Authors>
+            <PackageId>$(ThunderstoreNamespace).$(ThunderstoreName)</PackageId>
+            <PackageVersion>$(PackagingVersion)</PackageVersion>
+            <PackageOutputPath>$(PackagingOutputPath)/NUPKG</PackageOutputPath>
+            <PackageDescription>$(PackagingDescription)</PackageDescription>
+            <PackageProjectUrl>$(PackagingProjectURL)</PackageProjectUrl>
+            <RepositoryUrl>$(PackagingRepositoryURL)</RepositoryUrl>
+            <RepositoryType>git</RepositoryType>
+            <RepositoryBranch>$(PackagingRepositoryBranch)</RepositoryBranch>
+            <PackageLicenseFile>$([System.IO.Path]::GetFileName('$(PackagingLICENSE)'))</PackageLicenseFile>
+            <PackageReadmeFile>$([System.IO.Path]::GetFileName('$(PackagingREADME)'))</PackageReadmeFile>
+            <PackageIcon>$([System.IO.Path]::GetFileName('$(PackagingIcon)'))</PackageIcon>
+        </PropertyGroup>
+    </Target>
+    <Target Name="AfterBuildPreNupkgCreation" AfterTargets="Build" BeforeTargets="GenerateNuspec">
+        <ItemGroup>
+            <TCLI_QuotedCommunities Include="&quot;%(PackagingCommunities.Identity)&quot;"/>
+            <TCLI_QuotedCategories Condition="'@(PackagingCategories->Count())' > 0" Include="&quot;%(PackagingCategories.Identity)&quot;"/>
+        </ItemGroup>
+        <PropertyGroup>
+            <NupkgOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)/$(PackageId).$(PackageVersion).nupkg'))</NupkgOutputPath>
+        </PropertyGroup>
+        <Delete Condition="Exists($(NupkgOutputPath))" Files="$(NupkgOutputPath)"/>
+    </Target>
+
+    <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
+        <Message Importance="high" Text="$(NupkgOutputPath)"/>
+    </Target>
+</Project>
