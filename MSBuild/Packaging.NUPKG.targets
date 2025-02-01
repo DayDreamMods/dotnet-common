@@ -49,7 +49,7 @@
             <ErrorMissingParams Condition="!Exists($(PackagingLICENSE))" Include="PackagingLICENSE Not Found "/>
         </ItemGroup>
 
-        <Error Condition="'@(ErrorMissingParams->Count())' > 0" Text="@(ErrorMissingParams, ', ')! Skipping TCLI Build!"/>
+        <Error Condition="'@(ErrorMissingParams->Count())' > 0" Text="@(ErrorMissingParams, ', ')! Skipping Build!"/>
 
         <ItemGroup Label="Final Includes">
             <None Include="$(PackagingIcon)" Pack="true" PackagePath="" />
