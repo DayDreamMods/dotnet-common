@@ -88,7 +88,8 @@
     </Target>
 
     <Target Name="PostPackFileWrites" AfterTargets="GenerateNuspec">
-        <Message Importance="high" Text="$(NupkgOutputPath)"/>
+        <JsonOutput>{"OutputDirectory": "$([System.IO.Path]::GetFullPath('$(MSBuildProjectPath)$(PackagingOutputPath)'))", "PublishNUPKG": "$(NupkgOutputPath)", "PublishTSPKG": false, "PublishNMPKG": false}</JsonOutput>
+        <Message Importance="high" Text="$(JsonOutput)"/>
     </Target>
     
     <Import Project="./Common.targets"/>
