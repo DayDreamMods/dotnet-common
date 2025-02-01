@@ -65,7 +65,7 @@
             <Authors>$(PackagingAuthor)</Authors>
             <PackageId>$(PackagingId)</PackageId>
             <PackageVersion>$(PackagingVersion)</PackageVersion>
-            <PackageOutputPath>$(PackagingOutputPath)/NUPKG</PackageOutputPath>
+            <PackageOutputPath>$(PackagingOutputPath)</PackageOutputPath>
             <PackageDescription>$(PackagingDescription)</PackageDescription>
             <PackageProjectUrl>$(PackagingProjectURL)</PackageProjectUrl>
             <RepositoryUrl>$(PackagingRepositoryURL)</RepositoryUrl>
