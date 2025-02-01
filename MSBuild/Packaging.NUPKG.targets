@@ -3,6 +3,7 @@
     <PropertyGroup>
         <PackagingAuthor>wwwDayDream</PackagingAuthor>
 
+        <PackagingId>$(AssemblyName)</PackagingId>
         <PackagingIcon>./icon.png</PackagingIcon>
         <PackagingREADME>../README.md</PackagingREADME>
         <PackagingLICENSE>../LICENSE</PackagingLICENSE>
@@ -17,6 +18,7 @@
     -->
     <Target Name="PackagingDataSetup" BeforeTargets="GenerateNuspec;Build">
         <PropertyGroup Label="Setup Optional Properties">
+            <PackagingId Condition="'$(PackagingId)' == ''">$(AssemblyName)</PackagingId>
             <PackagingAuthor Condition="'$(PackagingAuthor)' == ''">wwwDayDream</PackagingAuthor>
             <PackagingIcon Condition="'$(PackagingIcon)' == ''">./icon.png</PackagingIcon>
             <PackagingREADME Condition="'$(PackagingREADME)' == ''">../README.md</PackagingREADME>
@@ -59,9 +61,9 @@
 
         <PropertyGroup Label="Update External MSBuild Properties">
             <!-- Nuget.Build.Tasks.Pack.targets :: PackTask -->
-            <Title>$(ThunderstoreName)</Title>
+            <Title>$(PackagingId)</Title>
             <Authors>$(PackagingAuthor)</Authors>
-            <PackageId>$(ThunderstoreNamespace).$(ThunderstoreName)</PackageId>
+            <PackageId>$(PackagingId)</PackageId>
             <PackageVersion>$(PackagingVersion)</PackageVersion>
             <PackageOutputPath>$(PackagingOutputPath)/NUPKG</PackageOutputPath>
             <PackageDescription>$(PackagingDescription)</PackageDescription>
